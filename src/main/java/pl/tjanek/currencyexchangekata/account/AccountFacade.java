@@ -17,9 +17,12 @@ class AccountFacade {
     private final Clock clock;
 
     AccountNumber openNewAccount(AccountHolder holder, Money initialBalance) {
-        AccountNumber accountNumber = AccountNumber.generate();
-        CurrencyAccount account = new CurrencyAccount(accountNumber, holder, clock.instant());
+        var accountNumber = AccountNumber.generate();
+        var account = new CurrencyAccount(accountNumber, holder, clock.instant());
         repository.save(account);
+
+        balances.openBalanceForAccount(accountNumber, Money.PLN(initialBalance.amount()));
+        balances.openBalanceForAccount(accountNumber, Money.ZERO_USD);
 
         return account.number();
     }

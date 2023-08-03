@@ -30,18 +30,16 @@ class AccountEndpoint {
     OpenNewAccountResponse openNewAccount(@RequestBody OpenNewAccountRequest request) {
         AccountHolder accountHolder = new AccountHolder(request.firstName(), request.lastName());
         Money initialBalance = Money.PLN(request.initialBalance());
-
         AccountNumber accountNumber = accounts.openNewAccount(accountHolder, initialBalance);
 
         return new OpenNewAccountResponse(accountNumber.getNumber());
     }
 
     @GetMapping("/{accountNumber}")
-    ResponseEntity<AccountDetailsView> getAccountDetails(@PathVariable UUID accountNumber) {
-        // TODO: throw 404 when not found
-        CurrencyAccount account = accounts.getAccount(AccountNumber.of(accountNumber)).get();
-
-        return ResponseEntity.ok(AccountDetailsView.from(account));
+    ResponseEntity<AccountDetailsDto> getAccountDetails(@PathVariable UUID accountNumber) {
+        return accounts.getAccount(AccountNumber.of(accountNumber))
+                .map((account) -> ResponseEntity.ok(AccountDetailsDto.from(account)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }
@@ -50,22 +48,22 @@ record OpenNewAccountRequest(String firstName, String lastName, BigDecimal initi
 
 record OpenNewAccountResponse(UUID accountNumber) {}
 
-record AccountDetailsView(UUID accountNumber, AccountHolderView holder, Instant openedAt) {
+record AccountDetailsDto(UUID accountNumber, AccountHolderDto holder, Instant openedAt) {
 
-    static AccountDetailsView from(CurrencyAccount account) {
-        return new AccountDetailsView(
+    static AccountDetailsDto from(CurrencyAccount account) {
+        return new AccountDetailsDto(
             account.number().getNumber(),
-            AccountHolderView.from(account.holder()),
+            AccountHolderDto.from(account.holder()),
             account.openedAt()
         );
     }
 
 }
 
-record AccountHolderView(String firstName, String lastName) {
+record AccountHolderDto(String firstName, String lastName) {
 
-    static AccountHolderView from(AccountHolder holder) {
-        return new AccountHolderView(
+    static AccountHolderDto from(AccountHolder holder) {
+        return new AccountHolderDto(
                 holder.firstName(), holder.lastName()
         );
     }

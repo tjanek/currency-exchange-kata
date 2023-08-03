@@ -2,11 +2,10 @@ package pl.tjanek.currencyexchangekata.assertions.account
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import pl.tjanek.currencyexchangekata.assertions.CommonAssertion
 
 import java.time.Instant
 
-class GetOpenedAccountDetailsAssertion extends CommonAssertion {
+class GetOpenedAccountDetailsAssertion {
 
     private final ResponseEntity<Map> result
 
@@ -20,6 +19,11 @@ class GetOpenedAccountDetailsAssertion extends CommonAssertion {
 
     GetOpenedAccountDetailsAssertion isOpen() {
         assert result.statusCode == HttpStatus.OK
+        this
+    }
+
+    GetOpenedAccountDetailsAssertion isNotOpen() {
+        assert result.statusCode == HttpStatus.NOT_FOUND
         this
     }
 

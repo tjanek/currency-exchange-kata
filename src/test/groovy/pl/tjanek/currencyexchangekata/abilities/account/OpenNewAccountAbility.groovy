@@ -8,7 +8,7 @@ trait OpenNewAccountAbility extends AccountsHttpRequestAbility {
     ResponseEntity<Map> openNewAccount(
             String firstName = 'Jan',
             String lastName = 'Kowalski',
-            String initialBalancePLN = "100.00") {
+            String initialBalancePLN = "101.50") {
 
         httpPostRequest(ACCOUNTS_BASE_URL, [
                 firstName: firstName,

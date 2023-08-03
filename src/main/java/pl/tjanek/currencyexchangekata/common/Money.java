@@ -3,30 +3,29 @@ package pl.tjanek.currencyexchangekata.common;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class Money {
+public record Money(BigDecimal amount, Currency currency) {
 
-    private final Currency currency;
-    private final BigDecimal amount;
+    public static Money ZERO_USD = Money.USD(BigDecimal.ZERO);
 
     public static Money PLN(BigDecimal amount) {
-        return new Money(Currency.PLN, amount);
+        return new Money(amount, Currency.PLN);
     }
 
     public static Money USD(BigDecimal amount) {
-        return new Money(Currency.USD, amount);
+        return new Money(amount, Currency.USD);
     }
 
-    private Money(Currency currency, BigDecimal amount) {
+    public Money(BigDecimal amount, Currency currency) {
         this.currency = currency;
         this.amount = amount.setScale(2, RoundingMode.HALF_EVEN);
     }
 
     public Money plus(Money money) {
-        return new Money(currency, amount.add(money.amount));
+        return new Money(amount.add(money.amount), currency);
     }
 
     public Money minus(Money money) {
-        return new Money(currency, amount.subtract(money.amount));
+        return new Money(amount.subtract(money.amount), currency);
     }
 
 }
