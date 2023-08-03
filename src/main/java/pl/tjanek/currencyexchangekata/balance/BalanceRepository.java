@@ -29,4 +29,11 @@ class BalanceRepository {
         );
     }
 
+    Balance getBalance(AccountNumber accountNumber, Currency currency) {
+        return getBalancesFor(accountNumber).stream()
+                .filter(balance -> currency.equals(balance.getCurrency()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Not found balance for given account number and currency"));
+    }
+
 }

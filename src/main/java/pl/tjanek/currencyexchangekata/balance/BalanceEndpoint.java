@@ -35,6 +35,7 @@ record AccountBalancesDto(Map<Currency, BigDecimal> balances) {
                 .collect(Collectors.toMap(
                         Balance::getCurrency,
                         (balance) -> balance.getAmount().amount()));
+
         return new AccountBalancesDto(currencyBalances);
     }
 

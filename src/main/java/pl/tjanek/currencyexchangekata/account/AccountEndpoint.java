@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import pl.tjanek.currencyexchangekata.common.AccountNumber;
@@ -28,9 +29,9 @@ class AccountEndpoint {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     OpenNewAccountResponse openNewAccount(@RequestBody OpenNewAccountRequest request) {
-        AccountHolder accountHolder = new AccountHolder(request.firstName(), request.lastName());
-        Money initialBalance = Money.PLN(request.initialBalance());
-        AccountNumber accountNumber = accounts.openNewAccount(accountHolder, initialBalance);
+        var accountHolder = new AccountHolder(request.firstName(), request.lastName());
+        var initialBalance = Money.PLN(request.initialBalance());
+        var accountNumber = accounts.openNewAccount(accountHolder, initialBalance);
 
         return new OpenNewAccountResponse(accountNumber.getNumber());
     }
@@ -42,11 +43,25 @@ class AccountEndpoint {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PostMapping("/{accountNumber}/exchange/from/PLN/to/USD")
+    MoneyTransferResponse exchangePLNtoUSD(@PathVariable UUID accountNumber, @RequestParam BigDecimal amount) {
+        ExchangeRate exchangeRate = accounts.exchangePLNtoUSD(AccountNumber.of(accountNumber), amount);
+        return new MoneyTransferResponse(exchangeRate.value());
+    }
+
+    @PostMapping("/{accountNumber}/exchange/from/USD/to/PLN")
+    MoneyTransferResponse exchangeUSDtoPLN(@PathVariable UUID accountNumber, @RequestParam BigDecimal amount) {
+        ExchangeRate exchangeRate = accounts.exchangeUSDtoPLN(AccountNumber.of(accountNumber), amount);
+        return new MoneyTransferResponse(exchangeRate.value());
+    }
+
 }
 
 record OpenNewAccountRequest(String firstName, String lastName, BigDecimal initialBalance) {}
 
 record OpenNewAccountResponse(UUID accountNumber) {}
+
+record MoneyTransferResponse(BigDecimal exchangeRate) {}
 
 record AccountDetailsDto(UUID accountNumber, AccountHolderDto holder, Instant openedAt) {
 

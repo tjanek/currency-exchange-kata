@@ -1,5 +1,6 @@
 package pl.tjanek.currencyexchangekata
 
+
 import groovy.json.JsonOutput
 import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Autowired

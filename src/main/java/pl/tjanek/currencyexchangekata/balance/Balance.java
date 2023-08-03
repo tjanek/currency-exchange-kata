@@ -1,20 +1,30 @@
 package pl.tjanek.currencyexchangekata.balance;
 
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import pl.tjanek.currencyexchangekata.common.AccountNumber;
 import pl.tjanek.currencyexchangekata.common.Currency;
 import pl.tjanek.currencyexchangekata.common.Money;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @EqualsAndHashCode
 @Getter
 class Balance {
 
     private final AccountNumber number;
-    private final Money amount;
+    private Money amount;
+
+    Balance(AccountNumber number, Money amount) {
+        this.number = number;
+        this.amount = amount;
+    }
+
+    void increase(Money amountToIncrease) {
+        amount = amount.plus(amountToIncrease);
+    }
+
+    void decrease(Money amountToDecrease) {
+        amount = amount.minus(amountToDecrease);
+    }
 
     Currency getCurrency() {
         return amount.currency();

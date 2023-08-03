@@ -3,4 +3,4 @@ spring:
     active: nbp-exchange-rate
 
 nbp:
-  url: http://api.nbp.pl
+  url: http://localhost:9055

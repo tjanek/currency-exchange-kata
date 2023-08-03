@@ -18,6 +18,17 @@ public class BalanceFacade {
         repository.save(balance);
     }
 
+    public void moneyTransfer(AccountNumber accountNumber, Money from, Money to) {
+        var fromBalance = repository.getBalance(accountNumber, from.currency());
+        fromBalance.decrease(from);
+
+        var toBalance = repository.getBalance(accountNumber, to.currency());
+        toBalance.increase(to);
+
+        repository.save(fromBalance);
+        repository.save(toBalance);
+    }
+
     List<Balance> getBalances(AccountNumber accountNumber) {
         return repository.getBalancesFor(accountNumber);
     }

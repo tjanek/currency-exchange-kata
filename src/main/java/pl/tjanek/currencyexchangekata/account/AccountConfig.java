@@ -12,8 +12,9 @@ class AccountConfig {
     @Bean
     AccountFacade defaultAccountFacade(AccountRepository repository,
                                        BalanceFacade balances,
+                                       ExchangeRateClient exchangeRateClient,
                                        Clock clock) {
-        return new AccountFacade(balances, repository, clock);
+        return new AccountFacade(balances, repository, exchangeRateClient, clock);
     }
 
     @Bean
