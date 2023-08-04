@@ -8,4 +8,10 @@ public interface ExchangeRateClient {
 
     ExchangeRate getExchangeRateFromPLN(LocalDate effectiveDate, Currency toCurrency);
 
+    class ExchangeRateException extends RuntimeException {
+        public ExchangeRateException(String message) {
+            super(message);
+        }
+    }
+
 }

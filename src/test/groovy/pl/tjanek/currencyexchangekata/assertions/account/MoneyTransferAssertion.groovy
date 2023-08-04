@@ -26,6 +26,18 @@ class MoneyTransferAssertion {
         this
     }
 
+    MoneyTransferAssertion notTransferredBecauseOfNbpApiNotAvailable() {
+        assert result.statusCode == HttpStatus.INTERNAL_SERVER_ERROR
+        assert result.body['error'] == 'Error when try to exchange money'
+        this
+    }
+
+    MoneyTransferAssertion notTransferredBecauseOfRateNotFound() {
+        assert result.statusCode == HttpStatus.INTERNAL_SERVER_ERROR
+        assert result.body['error'] == 'Error when try to exchange money'
+        this
+    }
+
     MoneyTransferAssertion withExchangeRate(String rate) {
         assert result.body['exchangeRate'] as String == rate
         this

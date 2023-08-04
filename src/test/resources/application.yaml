@@ -4,3 +4,5 @@ spring:
 
 nbp:
   url: http://localhost:9055
+  cache:
+    enabled: false

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import pl.tjanek.currencyexchangekata.account.ExchangeRateClient.ExchangeRateException;
 import pl.tjanek.currencyexchangekata.balance.BalanceFacade.NegativeInitialBalanceException;
 import pl.tjanek.currencyexchangekata.balance.BalanceFacade.NotEnoughMoneyException;
 import pl.tjanek.currencyexchangekata.common.AccountNumber;
@@ -75,11 +76,19 @@ class AccountEndpoint {
                 .body(Map.of("error", "Could not transfer money because of not enough money"));
     }
 
+    @ExceptionHandler(ExchangeRateException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<Map<String, String>> handleExchangeRateException(ExchangeRateException exception) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Error when try to exchange money"));
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<Map<String, String>> handleException(Exception exception) {
         return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Error"));
     }
 

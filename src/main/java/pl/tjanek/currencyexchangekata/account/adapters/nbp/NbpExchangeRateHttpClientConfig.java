@@ -13,10 +13,13 @@ class NbpExchangeRateHttpClientConfig {
     @Value("${nbp.url}")
     private String nbpApiBaseUrl;
 
+    @Value("${nbp.cache.enabled:true}")
+    private boolean nbpApiCacheEnabled;
+
     @Bean
     @Profile("nbp-exchange-rate")
     ExchangeRateClient nbpExchangeRateHttpClient(RestTemplate nbpExchangeRateRestTemplate) {
-        return new NbpExchangeRateHttpClient(nbpExchangeRateRestTemplate, nbpApiBaseUrl);
+        return new NbpExchangeRateHttpClient(nbpExchangeRateRestTemplate, nbpApiBaseUrl, nbpApiCacheEnabled);
     }
 
     @Bean

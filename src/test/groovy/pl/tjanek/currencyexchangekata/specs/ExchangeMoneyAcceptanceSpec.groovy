@@ -1,6 +1,6 @@
 package pl.tjanek.currencyexchangekata.specs
 
-
+import com.github.tomakehurst.wiremock.client.WireMock
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import pl.tjanek.currencyexchangekata.BaseIntegrationSpec
 import pl.tjanek.currencyexchangekata.abilities.account.ExchangeMoneyAbility
@@ -14,6 +14,10 @@ import static pl.tjanek.currencyexchangekata.assertions.account.MoneyTransferAss
 @AutoConfigureWireMock(port = 9055)
 class ExchangeMoneyAcceptanceSpec extends BaseIntegrationSpec
     implements OpenNewAccountAbility, GetAccountBalancesAbility, ExchangeMoneyAbility {
+
+    def setup() {
+        WireMock.reset()
+    }
 
     // @formatter:off
     def "should exchange PLN to USD with given amount"() {
@@ -71,7 +75,33 @@ class ExchangeMoneyAcceptanceSpec extends BaseIntegrationSpec
                 .notTransferredBecauseOfNotEnoughMoney()
     }
 
-    private void nbpReturnsSomeUSDRate() {
+    def "should not exchange when NBP is not available"() {
+        given:
+            nbpIsNotAvailable()
+        and:
+            def accountOpened = openNewAccount()
+            def accountNumber = accountOpened.body['accountNumber'] as String
+        when:
+            def moneyTransferred = exchangePLNtoUSD(accountNumber, "12.56")
+        then:
+            assertThatMoneyTransfer(moneyTransferred)
+                .notTransferredBecauseOfNbpApiNotAvailable()
+    }
+
+    def "should not exchange when NBP returns empty USD rate"() {
+        given:
+            nbpReturnsEmptyUSDRate()
+        and:
+            def accountOpened = openNewAccount()
+            def accountNumber = accountOpened.body['accountNumber'] as String
+        when:
+            def moneyTransferred = exchangePLNtoUSD(accountNumber, "12.56")
+        then:
+            assertThatMoneyTransfer(moneyTransferred)
+                .notTransferredBecauseOfRateNotFound()
+    }
+
+    private static void nbpReturnsSomeUSDRate() {
         stubFor(get(urlEqualTo("/api/exchangerates/rates/a/USD/?format=json"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -89,6 +119,27 @@ class ExchangeMoneyAcceptanceSpec extends BaseIntegrationSpec
   ]
 }
 """)))
+    }
+
+    private static void nbpReturnsEmptyUSDRate() {
+        stubFor(get(urlEqualTo("/api/exchangerates/rates/a/USD/?format=json"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("""
+{
+  "table": "A",
+  "currency": "dolar amerykański",
+  "code": "USD",
+  "rates": []
+}
+""")))
+    }
+
+    private static void nbpIsNotAvailable() {
+        stubFor(get(urlEqualTo("/api/exchangerates/rates/a/USD/?format=json"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withStatus(500)))
     }
 
 }
