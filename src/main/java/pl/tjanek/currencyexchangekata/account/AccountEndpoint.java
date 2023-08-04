@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import pl.tjanek.currencyexchangekata.balance.BalanceFacade;
+import pl.tjanek.currencyexchangekata.balance.BalanceFacade.NegativeInitialBalanceException;
+import pl.tjanek.currencyexchangekata.balance.BalanceFacade.NotEnoughMoneyException;
 import pl.tjanek.currencyexchangekata.common.AccountNumber;
 import pl.tjanek.currencyexchangekata.common.Money;
 
@@ -58,13 +59,28 @@ class AccountEndpoint {
         return new MoneyTransferResponse(exchangeRate.value());
     }
 
-    @ExceptionHandler(BalanceFacade.LessThanZeroInitialBalanceException.class)
+    @ExceptionHandler(NegativeInitialBalanceException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    public ResponseEntity<Map<String, String>> handleLessThanZeroInitialBalanceException(
-            BalanceFacade.LessThanZeroInitialBalanceException exception) {
+    public ResponseEntity<Map<String, String>> handleNegativeInitialBalanceException(NegativeInitialBalanceException exception) {
         return ResponseEntity
                 .status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(Map.of("error", "Could not create account with negative initial balance"));
+    }
+
+    @ExceptionHandler(NotEnoughMoneyException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ResponseEntity<Map<String, String>> handleNotEnoughMoneyException(NotEnoughMoneyException exception) {
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(Map.of("error", "Could not transfer money because of not enough money"));
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<Map<String, String>> handleException(Exception exception) {
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(Map.of("error", "Error"));
     }
 
 }

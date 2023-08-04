@@ -58,6 +58,19 @@ class ExchangeMoneyAcceptanceSpec extends BaseIntegrationSpec
     }
     // @formatter:on
 
+    def "should not exchange with given amount bigger than money has"() {
+        given:
+            nbpReturnsSomeUSDRate()
+        and:
+            def accountOpened = openNewAccount()
+            def accountNumber = accountOpened.body['accountNumber'] as String
+        when:
+            def moneyTransferred = exchangePLNtoUSD(accountNumber, "25.00")
+        then:
+            assertThatMoneyTransfer(moneyTransferred)
+                .notTransferredBecauseOfNotEnoughMoney()
+    }
+
     private void nbpReturnsSomeUSDRate() {
         stubFor(get(urlEqualTo("/api/exchangerates/rates/a/USD/?format=json"))
                 .willReturn(aResponse()

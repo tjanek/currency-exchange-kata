@@ -20,6 +20,12 @@ class MoneyTransferAssertion {
         this
     }
 
+    MoneyTransferAssertion notTransferredBecauseOfNotEnoughMoney() {
+        assert result.statusCode == HttpStatus.UNPROCESSABLE_ENTITY
+        assert result.body['error'] == 'Could not transfer money because of not enough money'
+        this
+    }
+
     MoneyTransferAssertion withExchangeRate(String rate) {
         assert result.body['exchangeRate'] as String == rate
         this
