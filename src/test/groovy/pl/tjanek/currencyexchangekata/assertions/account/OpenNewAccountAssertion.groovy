@@ -21,6 +21,12 @@ class OpenNewAccountAssertion extends CommonAssertion {
         this
     }
 
+    OpenNewAccountAssertion notCreatedForNegativeInitialBalance() {
+        assert result.statusCode == HttpStatus.UNPROCESSABLE_ENTITY
+        assert result.body['error'] == 'Could not create account with negative initial balance'
+        this
+    }
+
     OpenNewAccountAssertion accountNumberGenerated() {
         assert result.body['accountNumber'] != null
         assertThatIsUUID(result.body['accountNumber'])

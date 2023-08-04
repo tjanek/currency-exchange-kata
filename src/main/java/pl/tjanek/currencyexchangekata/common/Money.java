@@ -28,4 +28,8 @@ public record Money(BigDecimal amount, Currency currency) {
         return new Money(amount.subtract(money.amount), currency);
     }
 
+    public boolean isLessThanZero() {
+        return amount.compareTo(BigDecimal.ZERO) < 0;
+    }
+
 }

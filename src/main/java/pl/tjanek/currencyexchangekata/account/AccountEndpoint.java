@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,11 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import pl.tjanek.currencyexchangekata.balance.BalanceFacade;
 import pl.tjanek.currencyexchangekata.common.AccountNumber;
 import pl.tjanek.currencyexchangekata.common.Money;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -53,6 +56,15 @@ class AccountEndpoint {
     MoneyTransferResponse exchangeUSDtoPLN(@PathVariable UUID accountNumber, @RequestParam BigDecimal amount) {
         ExchangeRate exchangeRate = accounts.exchangeUSDtoPLN(AccountNumber.of(accountNumber), amount);
         return new MoneyTransferResponse(exchangeRate.value());
+    }
+
+    @ExceptionHandler(BalanceFacade.LessThanZeroInitialBalanceException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ResponseEntity<Map<String, String>> handleLessThanZeroInitialBalanceException(
+            BalanceFacade.LessThanZeroInitialBalanceException exception) {
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(Map.of("error", "Could not create account with negative initial balance"));
     }
 
 }

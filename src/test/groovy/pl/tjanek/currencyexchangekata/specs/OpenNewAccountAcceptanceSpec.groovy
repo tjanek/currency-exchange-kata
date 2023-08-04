@@ -38,6 +38,14 @@ class OpenNewAccountAcceptanceSpec extends BaseIntegrationSpec
                 .hasBalanceInUSD("0.0")
     }
 
+    def "should not open new account with given negative PLN initial balance"() {
+        when:
+            def accountOpened = openNewAccount('Stefan', 'Batory', '-0.01')
+        then:
+            assertThatOpeningNewAccount(accountOpened)
+                .notCreatedForNegativeInitialBalance()
+    }
+
     def "should not find not open account yet"() {
         given:
             def accountNumber = UUID.randomUUID().toString()

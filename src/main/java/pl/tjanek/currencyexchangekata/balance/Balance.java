@@ -2,6 +2,7 @@ package pl.tjanek.currencyexchangekata.balance;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import pl.tjanek.currencyexchangekata.balance.BalanceFacade.LessThanZeroInitialBalanceException;
 import pl.tjanek.currencyexchangekata.common.AccountNumber;
 import pl.tjanek.currencyexchangekata.common.Currency;
 import pl.tjanek.currencyexchangekata.common.Money;
@@ -15,6 +16,7 @@ class Balance {
 
     Balance(AccountNumber number, Money amount) {
         this.number = number;
+        if (amount.isLessThanZero()) throw new LessThanZeroInitialBalanceException();
         this.amount = amount;
     }
 

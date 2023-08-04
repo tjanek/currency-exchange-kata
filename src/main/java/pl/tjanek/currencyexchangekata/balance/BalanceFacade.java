@@ -33,4 +33,5 @@ public class BalanceFacade {
         return repository.getBalancesFor(accountNumber);
     }
 
+    public static class LessThanZeroInitialBalanceException extends RuntimeException { }
 }
